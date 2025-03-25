@@ -1,46 +1,34 @@
 import pygame
 
 pygame.init()
-pygame.mixer.init()
-
 
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Frogger Game")
+pygame.display.set_caption("frogger")
 
+frogpic = pygame.image.load("frog.png")
+carpic = pygame.image.load("car.png")
+logpic = pygame.image.load("log.png")
 
-CARIMAGE = pygame.image.load("car.png")
-LOGIMAGE = pygame.image.load("log.png")
-FROGIMAGE = pygame.image.load("frog.png")
-
-
-frog_rect = pygame.Rect(400, 550, 40, 40)
-car_speed = 3
-log_speed = 2
-lives = 3
-game_active = True
-
+frogrect = pygame.Rect(400, 550, 20, 20)
 
 cars = []
 for i in range(5):
-    cars.append({
-        "rect": pygame.Rect(WIDTH + i * 250, 350 + (i % 3) * 50, 50, 30),
-        "speed": car_speed
-    })
+    cars.append(pygame.Rect(WIDTH + i * 200, 350 + (i % 3) * 40, 40, 20))
 
-# Log setup
+carspeed = 3
+
+river_rect = pygame.Rect(0, 100, WIDTH, 150)
 logs = []
+logspeeds = []
 for i in range(3):
-    logs.append({
-        "rect": pygame.Rect(i * 300, 150 + (i % 2) * 50, 100, 30),
-        "speed": log_speed * (1 if i % 2 == 0 else -1)
-    })
+    logs.append(pygame.Rect(i * 250, 150 + (i % 2) * 40, 60, 20))
+    logspeeds.append(2 if i % 2 == 0 else -2)
 
-
-river_rect = pygame.Rect(0, 100, WIDTH, 200)
-
-
+lives = 3
+game_active = True
 running = True
+
 while running:
     screen.fill((0, 0, 0))
 
@@ -49,63 +37,62 @@ while running:
             running = False
         elif event.type == pygame.KEYDOWN:
             if game_active:
-                if event.key == pygame.K_LEFT and frog_rect.left > 0:
-                    frog_rect.x -= 40
-                elif event.key == pygame.K_RIGHT and frog_rect.right < WIDTH:
-                    frog_rect.x += 40
-                elif event.key == pygame.K_UP and frog_rect.top > 0:
-                    frog_rect.y -= 40
-                elif event.key == pygame.K_DOWN and frog_rect.bottom < HEIGHT:
-                    frog_rect.y += 40
+                if event.key == pygame.K_LEFT and frogrect.left > 0:
+                    frogrect.x -= 20
+                elif event.key == pygame.K_RIGHT and frogrect.right < WIDTH:
+                    frogrect.x += 20
+                elif event.key == pygame.K_UP and frogrect.top > 0:
+                    frogrect.y -= 20
+                elif event.key == pygame.K_DOWN and frogrect.bottom < HEIGHT:
+                    frogrect.y += 20
             else:
                 game_active = True
                 lives = 3
-                frog_rect.topleft = (400, 550)
+                frogrect.topleft = (400, 550)
 
     if game_active:
         for car in cars:
-            car["rect"].x -= car["speed"]
-            if car["rect"].right < 0:
-                car["rect"].left = WIDTH
+            car.x -= carspeed
+            if car.right < 0:
+                car.left = WIDTH
 
-        for log in logs:
-            log["rect"].x += log["speed"]
-            if log["rect"].left > WIDTH:
-                log["rect"].right = 0
-            elif log["rect"].right < 0:
-                log["rect"].left = WIDTH
+        for i in range(len(logs)):
+            logs[i].x += logspeeds[i]
+            if logs[i].left > WIDTH:
+                logs[i].right = 0
+            elif logs[i].right < 0:
+                logs[i].left = WIDTH
 
-        if any(frog_rect.colliderect(car["rect"]) for car in cars):
+        if any(frogrect.colliderect(car) for car in cars):
             lives -= 1
-            frog_rect.topleft = (400, 550)
+            frogrect.topleft = (400, 550)
             pygame.mixer.Sound("crash.ogg").play()
             if lives <= 0:
                 game_active = False
 
-        if frog_rect.colliderect(river_rect):
+        if frogrect.colliderect(river_rect):
             on_log = False
-            for log in logs:
-                if frog_rect.colliderect(log["rect"]):
+            for i in range(len(logs)):
+                if frogrect.colliderect(logs[i]):
                     on_log = True
-                    frog_rect.x += log["speed"]
+                    frogrect.x += log_speeds[i]
             if not on_log:
                 lives -= 1
-                frog_rect.topleft = (400, 550)
+                frogrect.topleft = (400, 550)
                 if lives <= 0:
                     game_active = False
 
-
         for car in cars:
-            screen.blit(CARIMAGE, car["rect"])
+            screen.blit(carpic, car)
         for log in logs:
-            screen.blit(LOGIMAGE, log["rect"])
-        screen.blit(FROGIMAGE, frog_rect)
+            screen.blit(logpic, log)
+        screen.blit(frogpic, frogrect)
 
         for i in range(lives):
-            screen.blit(FROGIMAGE, (10 + i * 40, 580))
+            screen.blit(frogpic, (10 + i * 20, 570))
     else:
         font = pygame.font.Font(None, 50)
-        text = font.render("Game Over! Press any key to restart", True, (255, 0, 0))
+        text = font.render("game over", True, (255, 0, 0))
         screen.blit(text, (200, 250))
 
     pygame.display.flip()
