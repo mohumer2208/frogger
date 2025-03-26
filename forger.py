@@ -6,9 +6,9 @@ WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("frogger")
 
-frogpic = pygame.image.load("frog.png")
-carpic = pygame.image.load("car.png")
-logpic = pygame.image.load("log.png")
+frogpic = pygame.transform.scale(pygame.image.load("frog.png"), (50, 50))
+carpic = pygame.transform.scale(pygame.image.load("car.png"), (100, 100))
+logpic = pygame.transform.scale(pygame.image.load("log.png"), (200, 50))
 
 frogrect = pygame.Rect(400, 550, 20, 20)
 
@@ -99,4 +99,5 @@ while running:
     pygame.time.delay(30)
 
 pygame.quit()
+
 
